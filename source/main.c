@@ -64,86 +64,10 @@ s16 playerMapMaxY;
 s16 playerScreenX;
 s16 playerScreenY;
 
-//static const s32 iso_dir16[16][2] =
-//{
-//    {      0, -65536 },   /*  0: S  */
-//    {  26754, -59830 },   /*  1 */
-//    {  46341, -46341 },   /*  2 */
-//    {  59830, -26754 },   /*  3 */
-//    {  65536,      0 },   /*  4: E  */
-//    {  59830,  26754 },   /*  5 */
-//    {  46341,  46341 },   /*  6 */
-//    {  26754,  59830 },   /*  7 */
-//    {      0,  65536 },   /*  8: N  */
-//    { -26754,  59830 },   /*  9 */
-//    { -46341,  46341 },   /* 10 */
-//    { -59830,  26754 },   /* 11 */
-//    { -65536,      0 },   /* 12: W  */
-//    { -59830, -26754 },   /* 13 */
-//    { -46341, -46341 },   /* 14 */
-//    { -26754, -59830 }    /* 15 */
-//};
+#define SPEED_FACTOR 2.0f
+#define TO_SPEED(value) ((s16)(value * SPEED_FACTOR * (1 << FIXED_POINT_FACTOR)))
 
-//static const s16 iso_dir16[16][2] =
-//{
-//    { 0x0000, 0x0040 }, /*  0: S  (  0, +64) */
-//    { 0x001A, 0x003A }, /*  1:     ( 26, +58) */
-//    { 0x002D, 0x002D }, /*  2:     ( 45, +45) */
-//    { 0x003A, 0x001A }, /*  3:     ( 58, +26) */
-//    { 0x0040, 0x0000 }, /*  4: E   ( 64,   0) */
-//    { 0x003A, 0xFFE6 }, /*  5 */
-//    { 0x002D, 0xFFD3 }, /*  6 */
-//    { 0x001A, 0xFFC6 }, /*  7 */
-//    { 0x0000, 0xFFC0 }, /*  8: N   (  0, -64) */
-//    { 0xFFE6, 0xFFC6 }, /*  9 */
-//    { 0xFFD3, 0xFFD3 }, /* 10 */
-//    { 0xFFC6, 0xFFE6 }, /* 11 */
-//    { 0xFFC0, 0x0000 }, /* 12: W   (-64,   0) */
-//    { 0xFFC6, 0x001A }, /* 13 */
-//    { 0xFFD3, 0x002D }, /* 14 */
-//    { 0xFFE6, 0x003A }  /* 15 */
-//};
-
-
-//static const s16 iso_dir16[16][2] =
-//{
-//    { 0x0000, 0x0020 }, /*  0: S  (  0, +32) */
-//    { 0x000D, 0x001D }, /*  1:     ( 13, +29) */
-//    { 0x0016, 0x0016 }, /*  2:     ( 22, +22) */
-//    { 0x001D, 0x000D }, /*  3:     ( 29, +13) */
-//    { 0x0020, 0x0000 }, /*  4: E   ( 32,   0) */
-//    { 0x001D, 0xFFF3 }, /*  5 */
-//    { 0x0016, 0xFFEA }, /*  6 */
-//    { 0x000D, 0xFFE3 }, /*  7 */
-//    { 0x0000, 0xFFE0 }, /*  8: N   (  0, -32) */
-//    { 0xFFF3, 0xFFE3 }, /*  9 */
-//    { 0xFFEA, 0xFFEA }, /* 10 */
-//    { 0xFFE3, 0xFFF3 }, /* 11 */
-//    { 0xFFE0, 0x0000 }, /* 12: W   (-32,   0) */
-//    { 0xFFE3, 0x000D }, /* 13 */
-//    { 0xFFEA, 0x0016 }, /* 14 */
-//    { 0xFFF3, 0x001D }  /* 15 */
-//};
-
-static const s16 iso_dir16[16][2] =
-{
-    { 0x0000, 0x0010 }, /*  0: S  (  0, +16) */
-    { 0x0005, 0x000F }, /*  1:     (  5, +15) */
-    { 0x000A, 0x000E }, /*  2:     ( 10, +14) */
-    { 0x000E, 0x000A }, /*  3:     ( 14, +10) */
-    { 0x0010, 0x0000 }, /*  4: E   ( 16,   0) */
-    { 0x000E, 0xFFF6 }, /*  5 */
-    { 0x000A, 0xFFF2 }, /*  6 */
-    { 0x0005, 0xFFF1 }, /*  7 */
-    { 0x0000, 0xFFF0 }, /*  8: N   (  0, -16) */
-    { 0xFFFB, 0xFFF1 }, /*  9 */
-    { 0xFFF6, 0xFFF2 }, /* 10 */
-    { 0xFFF2, 0xFFF6 }, /* 11 */
-    { 0xFFF0, 0x0000 }, /* 12: W   (-16,   0) */
-    { 0xFFF2, 0x000A }, /* 13 */
-    { 0xFFF6, 0x000E }, /* 14 */
-    { 0xFFFB, 0x000F }  /* 15 */
-};
+s16 iso_dir16_b[16][2];
 
 void updateCameraPosition(void)
 {
@@ -189,6 +113,41 @@ SMS_EMBED_SEGA_ROM_HEADER(9999,1);
 
 void main(void)
 {
+
+	iso_dir16_b[0][0] = TO_SPEED(0.0f);
+	iso_dir16_b[0][1] = TO_SPEED(1.0f);
+	iso_dir16_b[1][0] = TO_SPEED(0.382683f);
+	iso_dir16_b[1][1] = TO_SPEED(0.92388f);
+	iso_dir16_b[2][0] = TO_SPEED(0.707107f);
+	iso_dir16_b[2][1] = TO_SPEED(0.707107f);
+	iso_dir16_b[3][0] = TO_SPEED(0.92388f);
+	iso_dir16_b[3][1] = TO_SPEED(0.382683f);
+	iso_dir16_b[4][0] = TO_SPEED(1.0f);
+	iso_dir16_b[4][1] = TO_SPEED(-0.0f);
+	iso_dir16_b[5][0] = TO_SPEED(0.92388f) ;
+	iso_dir16_b[5][1] = TO_SPEED(-0.382683f);
+	iso_dir16_b[6][0] = TO_SPEED(0.707107f);
+	iso_dir16_b[6][1] = TO_SPEED(-0.707107f);
+	iso_dir16_b[7][0] = TO_SPEED(0.382683f);
+	iso_dir16_b[7][1] = TO_SPEED(-0.92388f);
+	iso_dir16_b[8][0] = TO_SPEED(0.0f);
+	iso_dir16_b[8][1] = TO_SPEED(-1.0f);
+	iso_dir16_b[9][0] = TO_SPEED(-0.382683f);
+	iso_dir16_b[9][1] = TO_SPEED(-0.92388f);
+	iso_dir16_b[10][0] = TO_SPEED(-0.707107f);
+	iso_dir16_b[10][1] = TO_SPEED(-0.707107f);
+	iso_dir16_b[11][0] = TO_SPEED(-0.92388f);
+	iso_dir16_b[11][1] = TO_SPEED(-0.382683f);
+	iso_dir16_b[12][0] = TO_SPEED(-1.0f);
+	iso_dir16_b[12][1] = TO_SPEED(0.0f);
+	iso_dir16_b[13][0] = TO_SPEED(-0.92388f);
+	iso_dir16_b[13][1] = TO_SPEED(0.382683f);
+	iso_dir16_b[14][0] = TO_SPEED(-0.707107f);
+	iso_dir16_b[14][1] = TO_SPEED(0.707107f);
+	iso_dir16_b[15][0] = TO_SPEED(-0.382683f);
+	iso_dir16_b[15][1] = TO_SPEED(0.92388f);
+
+
 	unsigned int ks;
 
 	SMS_setSpriteMode(SPRITEMODE_TALL);
@@ -407,19 +366,8 @@ void processUserInput(void)
 
 	if (ks & PORT_A_KEY_2)
 	{
-		playerSpeedX = iso_dir16[carDirection][0];
-		playerSpeedY = iso_dir16[carDirection][1];
+		playerSpeedX = iso_dir16_b[carDirection][0];
+		playerSpeedY = iso_dir16_b[carDirection][1];
 	}
 
 }
-
-
-
-
-
-
-
-
-
-
-
