@@ -1,0 +1,30 @@
+DONE get example gslib to build
+DONE get gslib to build with makefile
+DONE makefile project using example resources
+DONE make custom background
+DONE test dimension limits of maps
+DONE test speed of scrolling
+DONE how to make map
+
+DONE make car or box in blender (fuuuuuuck)
+
+DONE make car drive around
+DONE gas button
+DONE turn
+
+make scroll correctly in the direction the car is driving
+
+glitchy car sprite when driving in certain angles
+
+
+turn speed depends on car speed
+
+acceleration 
+braking
+
+improve streaming sprite
+
+improve car graphics
+
+optimize?
+don't need destructable tiles?

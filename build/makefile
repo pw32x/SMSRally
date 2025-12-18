@@ -3,7 +3,7 @@
 PROGNAME?=RacingGame
 
 #change to your devkitSMS folder
-DEVKITSMS_BASE=../../../devkitSMS-master
+DEVKITSMS_BASE=../../devkitSMS-master
 
 LOCAL_LIB_DIR = lib
 
