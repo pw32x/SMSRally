@@ -21,9 +21,13 @@ void processSpritesVBlank(void);
 void processUserInput(void);
 
 #define FIXED_POINT_FACTOR 4
-// world to other spaces
-#define W2S(x) (x >> FIXED_POINT_FACTOR) // world to screen
-#define S2W(x) (x << FIXED_POINT_FACTOR) // screen to world
+// world to pixel and back
+#define W2P(x) (x >> FIXED_POINT_FACTOR) // world to pixel
+#define P2W(x) (x << FIXED_POINT_FACTOR) // pixel to world
+
+// world to screen and back
+#define W2S_XY(wx, wy, px, py) px = W2P(wx); py = (W2P(wy) >> 1);
+#define S2W_XY(px, py, wx, wy) wx = P2W(px); wy = P2W(py << 1)
 
 #define PLAYER_START_X 128
 #define PLAYER_START_Y 128
@@ -34,13 +38,10 @@ void processUserInput(void);
 #define PLAYER_SPEED_UP (-PLAYER_SPEED)
 #define PLAYER_SPEED_DOWN (PLAYER_SPEED)
 
-s16 playerWorldX;
-s16 playerWorldY;
-s16 playerSpeedX;
-s16 playerSpeedY;
-
-s16 worldLimitX;
-s16 worldLimitY;
+s32 playerWorldX;
+s32 playerWorldY;
+s32 playerSpeedX;
+s32 playerSpeedY;
 
 s16 cameraX;
 s16 cameraY;
@@ -51,15 +52,15 @@ s16 cameraDeltaY;
 s16 cameraLimitX;
 s16 cameraLimitY;
 
-#define PLAYER_WIDTH 16
-#define PLAYER_HEIGHT 16
-#define PLAYER_HALF_WIDTH	8
-#define PLAYER_HALF_HEIGHT	8
+#define PLAYER_WIDTH 48
+#define PLAYER_HEIGHT 48
+#define PLAYER_HALF_WIDTH	(PLAYER_WIDTH >> 1)
+#define PLAYER_HALF_HEIGHT	(PLAYER_HEIGHT >> 1)
 
-s16 playerMapMinX;
-s16 playerMapMinY;
-s16 playerMapMaxX;
-s16 playerMapMaxY;
+s32 playerWorldMinX;
+s32 playerWorldMinY;
+s32 playerWorldMaxX;
+s32 playerWorldMaxY;
 
 s16 playerScreenX;
 s16 playerScreenY;
@@ -89,24 +90,24 @@ void updatePlayerPhysics(void)
 	playerWorldX += playerSpeedX;
 	playerWorldY += playerSpeedY;
 
-	if (playerWorldX < 0)
+	if (playerWorldX < playerWorldMinX)
 	{
-		playerWorldX = 0;
+		playerWorldX = playerWorldMinX;
 	}
 
-	if (playerWorldY < 0)
+	if (playerWorldY < playerWorldMinY)
 	{
-		playerWorldY = 0;
+		playerWorldY = playerWorldMinY;
 	}
 
-	if (playerWorldX >= worldLimitX)
+	if (playerWorldX >= playerWorldMaxX)
 	{
-		playerWorldX = worldLimitX;
+		playerWorldX = playerWorldMaxX;
 	}
 
-	if (playerWorldY >= worldLimitY)
+	if (playerWorldY >= playerWorldMaxY)
 	{
-		playerWorldY = worldLimitY;
+		playerWorldY = playerWorldMaxY;
 	}
 
 }
@@ -166,26 +167,22 @@ void main(void)
 		// initalise General Scroll Library
 		GSL_initializeMap(&scrolltable, &testmap003_metatiles_bin);
 
-		playerMapMinX = PLAYER_WIDTH; // because the left column is hidden
-		playerMapMinY = PLAYER_HALF_HEIGHT;
-		playerMapMaxX = (GSL_getMapWidthInPixels() - 1) - PLAYER_HALF_WIDTH;
-		playerMapMaxY = (GSL_getMapHeightInPixels() - 1) - PLAYER_HALF_HEIGHT;
+		S2W_XY(PLAYER_HALF_WIDTH, PLAYER_HALF_HEIGHT, playerWorldMinX, playerWorldMinY);
+		S2W_XY((GSL_getMapWidthInPixels() - 1) - PLAYER_HALF_WIDTH, 
+			   (GSL_getMapHeightInPixels() - 1) - PLAYER_HALF_HEIGHT,
+			   playerWorldMaxX, 
+			   playerWorldMaxY);
 
 		log("GSL_getMapWidthInPixels: %d\n", GSL_getMapWidthInPixels());
 		log("GSL_getMapHeightInPixels: %d\n", GSL_getMapHeightInPixels());
 
-
 		cameraLimitX = (GSL_getMapWidthInPixels() - 1) - SCREEN_WIDTH;
 		cameraLimitY = (GSL_getMapHeightInPixels() - 1) - SCREEN_HEIGHT;
 
-
 		playerScreenX = PLAYER_START_X;
 		playerScreenY = PLAYER_START_Y;
-		playerWorldX = S2W(PLAYER_START_X);
-        playerWorldY = S2W(PLAYER_START_Y) << 1;
-
-		worldLimitX = S2W(GSL_getMapWidthInPixels());
-		worldLimitY = S2W(GSL_getMapHeightInPixels());
+		playerWorldX = P2W(PLAYER_START_X);
+        playerWorldY = P2W(PLAYER_START_Y) << 1;
 
 		updateCameraPosition();
 
@@ -193,10 +190,12 @@ void main(void)
 		oldCameraY = cameraY;
 
 		log("init\n");
-		log("playerWorldX: %d\n", W2S(playerWorldX));
-		log("playerWorldY: %d\n", W2S(playerWorldY));
-		log("worldLimitX: %d\n", W2S(worldLimitX));
-		log("worldLimitY: %d\n", W2S(worldLimitY));
+		log("playerWorldX: %d\n", W2P(playerWorldX));
+		log("playerWorldY: %d\n", W2P(playerWorldY));
+		log("playerWorldMinX: %d\n", W2P(playerWorldMinX));
+		log("playerWorldMinY: %d\n", W2P(playerWorldMinY));
+		log("playerWorldMaxX: %d\n", W2P(playerWorldMaxX));
+		log("playerWorldMaxY: %d\n", W2P(playerWorldMaxY));
 		//log("cameraX: %d\n", cameraX);
 		//log("cameraY: %d\n", cameraY);
 		log("cameraLimitX: %d\n", cameraLimitX);
@@ -224,8 +223,7 @@ void main(void)
 			processUserInput();
 			updatePlayerPhysics();
 
-			playerScreenX = W2S(playerWorldX);
-			playerScreenY = W2S(playerWorldY) >> 1;
+			W2S_XY(playerWorldX, playerWorldY, playerScreenX, playerScreenY);
 
 			updateCameraPosition();
 
@@ -237,12 +235,11 @@ void main(void)
 
 
 			
-			//log("playerWorldX: %d\n", W2S(playerWorldX));
-			//log("playerWorldY: %d\n", W2S(playerWorldY));
+			//log("playerWorldX: %d\n", W2P(playerWorldX));
+			//log("playerWorldY: %d\n", W2P(playerWorldY));
 			//log("cameraX: %d\n", cameraX);
 			//log("cameraY: %d\n", cameraY);
-			//log("playerScreenX: %d\n", playerScreenX);
-			//log("playerScreenY: %d\n", playerScreenY);
+			//log("playerScreen pos: %d %d\n", playerScreenX, playerScreenY);
 
 			GSL_scroll(cameraDeltaX, cameraDeltaY); // << GSL_scroll with offsets to scroll map.
 
@@ -305,7 +302,7 @@ void UpdateStreamedBatchedAnimationFrame(void)
 
 	UNSAFE_SMS_loadNTiles(tileOffset, vdpIndex, tileCount);
 
-	log("tileCount: %d\n", tileCount);
+	//log("tileCount: %d\n", tileCount);
 
 	// UNSAFE_SMS_VRAMmemcpy64(vdpIndex << 5, (const void *)tileOffset);
 }
