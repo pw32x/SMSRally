@@ -1,0 +1,1 @@
+del assets\banks\*.* /q

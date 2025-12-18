@@ -1,0 +1,127 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="build">
+      <UniqueIdentifier>{b98ae0a7-68ac-4820-8058-322c408645d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs">
+      <UniqueIdentifier>{c9ef1464-5305-434c-8b8a-e75277b516a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source">
+      <UniqueIdentifier>{f09c20c5-7574-4c07-ab93-bc18f1e95394}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="banks">
+      <UniqueIdentifier>{325a9af1-60fd-4b8c-a403-ad6032bafcc8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\exported">
+      <UniqueIdentifier>{2e3875a6-5ecb-42fe-bf60-711521de2b10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\exported\animations">
+      <UniqueIdentifier>{8249f127-72bc-4687-825b-83cec7a92ed9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\exported\palettes">
+      <UniqueIdentifier>{cf0cf337-1df9-4f19-b0fd-995ac76d4871}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\build\Makefile">
+      <Filter>build</Filter>
+    </None>
+    <None Include="..\build\rebuild.bat">
+      <Filter>build</Filter>
+    </None>
+    <None Include="..\build\build.bat">
+      <Filter>build</Filter>
+    </None>
+    <None Include="..\build\clean.bat">
+      <Filter>build</Filter>
+    </None>
+    <None Include="..\build\deploy.bat">
+      <Filter>build</Filter>
+    </None>
+    <None Include="..\build\build_assets_helper.bat">
+      <Filter>build</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\lib\PSGlib.h">
+      <Filter>libs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\SMSlib.h">
+      <Filter>libs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\GSLib.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\resources.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\metatiles_lookup.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\base_types.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\base_defines.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\assets\banks\bank2.h">
+      <Filter>banks</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\exported\animations\car001.h">
+      <Filter>Source\exported\animations</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\animation_types.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\resource_types.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\draw_utils.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\animation_utils.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\palette_types.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\exported\palettes\spritePalette.h">
+      <Filter>Source\exported\palettes</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\lib\PSGlib.lib">
+      <Filter>libs</Filter>
+    </Library>
+    <Library Include="..\lib\SMSlib.lib">
+      <Filter>libs</Filter>
+    </Library>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\source\GSLib.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\main.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\resources.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\metatiles_lookup.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\exported\animations\car001.c">
+      <Filter>Source\exported\animations</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\animation_utils.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\draw_utils.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\exported\palettes\spritePalette.c">
+      <Filter>Source\exported\palettes</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,12 @@
+#ifndef BASE_DEFINES_INCLUDE_H
+#define BASE_DEFINES_INCLUDE_H
+
+#define SCREEN_WIDTH  256
+#define SCREEN_HEIGHT 192
+
+#define SCREEN_HALF_WIDTH  128
+#define SCREEN_HALF_HEIGHT 96
+
+#define log SMS_debugPrintf
+
+#endif
