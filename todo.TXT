@@ -12,7 +12,7 @@ DONE make car drive around
 DONE gas button
 DONE turn
 
-make scroll correctly in the direction the car is driving
+DONE make scroll correctly in the direction the car is driving
 
 glitchy car sprite when driving in certain angles
 

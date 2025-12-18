@@ -64,8 +64,12 @@ s16 playerMapMaxY;
 s16 playerScreenX;
 s16 playerScreenY;
 
-#define SPEED_FACTOR 2.0f
-#define TO_SPEED(value) ((s16)(value * SPEED_FACTOR * (1 << FIXED_POINT_FACTOR)))
+#define SPEED_FACTOR 4.0f
+#define TO_SPEED(value) ((s16)(value * (1 << FIXED_POINT_FACTOR)))
+
+#define MAKE_SPEED(value, x, y) \
+value[0] = TO_SPEED(x * SPEED_FACTOR);\
+value[1] = TO_SPEED(y * SPEED_FACTOR)
 
 s16 iso_dir16_b[16][2];
 
@@ -113,39 +117,22 @@ SMS_EMBED_SEGA_ROM_HEADER(9999,1);
 
 void main(void)
 {
-
-	iso_dir16_b[0][0] = TO_SPEED(0.0f);
-	iso_dir16_b[0][1] = TO_SPEED(1.0f);
-	iso_dir16_b[1][0] = TO_SPEED(0.382683f);
-	iso_dir16_b[1][1] = TO_SPEED(0.92388f);
-	iso_dir16_b[2][0] = TO_SPEED(0.707107f);
-	iso_dir16_b[2][1] = TO_SPEED(0.707107f);
-	iso_dir16_b[3][0] = TO_SPEED(0.92388f);
-	iso_dir16_b[3][1] = TO_SPEED(0.382683f);
-	iso_dir16_b[4][0] = TO_SPEED(1.0f);
-	iso_dir16_b[4][1] = TO_SPEED(-0.0f);
-	iso_dir16_b[5][0] = TO_SPEED(0.92388f) ;
-	iso_dir16_b[5][1] = TO_SPEED(-0.382683f);
-	iso_dir16_b[6][0] = TO_SPEED(0.707107f);
-	iso_dir16_b[6][1] = TO_SPEED(-0.707107f);
-	iso_dir16_b[7][0] = TO_SPEED(0.382683f);
-	iso_dir16_b[7][1] = TO_SPEED(-0.92388f);
-	iso_dir16_b[8][0] = TO_SPEED(0.0f);
-	iso_dir16_b[8][1] = TO_SPEED(-1.0f);
-	iso_dir16_b[9][0] = TO_SPEED(-0.382683f);
-	iso_dir16_b[9][1] = TO_SPEED(-0.92388f);
-	iso_dir16_b[10][0] = TO_SPEED(-0.707107f);
-	iso_dir16_b[10][1] = TO_SPEED(-0.707107f);
-	iso_dir16_b[11][0] = TO_SPEED(-0.92388f);
-	iso_dir16_b[11][1] = TO_SPEED(-0.382683f);
-	iso_dir16_b[12][0] = TO_SPEED(-1.0f);
-	iso_dir16_b[12][1] = TO_SPEED(0.0f);
-	iso_dir16_b[13][0] = TO_SPEED(-0.92388f);
-	iso_dir16_b[13][1] = TO_SPEED(0.382683f);
-	iso_dir16_b[14][0] = TO_SPEED(-0.707107f);
-	iso_dir16_b[14][1] = TO_SPEED(0.707107f);
-	iso_dir16_b[15][0] = TO_SPEED(-0.382683f);
-	iso_dir16_b[15][1] = TO_SPEED(0.92388f);
+	MAKE_SPEED(iso_dir16_b[0], 0.0f, 1.0f);
+	MAKE_SPEED(iso_dir16_b[1], 0.382683f, 0.92388f);
+	MAKE_SPEED(iso_dir16_b[2], 0.707107f, 0.707107f);
+	MAKE_SPEED(iso_dir16_b[3], 0.92388f, 0.382683f);
+	MAKE_SPEED(iso_dir16_b[4], 1.0f, -0.0f);
+	MAKE_SPEED(iso_dir16_b[5], 0.92388f, -0.382683f);
+	MAKE_SPEED(iso_dir16_b[6], 0.707107f, -0.707107f);
+	MAKE_SPEED(iso_dir16_b[7], 0.382683f, -0.92388f);
+	MAKE_SPEED(iso_dir16_b[8], 0.0f, -1.0f);
+	MAKE_SPEED(iso_dir16_b[9], -0.382683f, -0.92388f);
+	MAKE_SPEED(iso_dir16_b[10], -0.707107f, -0.707107f);
+	MAKE_SPEED(iso_dir16_b[11], -0.92388f, -0.382683f);
+	MAKE_SPEED(iso_dir16_b[12], -1.0f, 0.0f);
+	MAKE_SPEED(iso_dir16_b[13], -0.92388f, 0.382683f);
+	MAKE_SPEED(iso_dir16_b[14], -0.707107f, 0.707107f);
+	MAKE_SPEED(iso_dir16_b[15], -0.382683f, 0.92388f);
 
 
 	unsigned int ks;
