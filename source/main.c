@@ -235,7 +235,7 @@ void main(void)
 		uploadCarTilesToVdpPart = UPLOAD_CAR_TILES_TO_VDP_PART_ONE;
 		backbufferCarSpriteVpdIndex = 256;
 		activeCarSpriteVpdIndex = 0;
-		log("Start game: part: %d, activeCarSpriteVpdIndex: %d, backbufferCarSpriteVpdIndex: %d\n", uploadCarTilesToVdpPart, activeCarSpriteVpdIndex, backbufferCarSpriteVpdIndex);
+		//log("Start game: part: %d, activeCarSpriteVpdIndex: %d, backbufferCarSpriteVpdIndex: %d\n", uploadCarTilesToVdpPart, activeCarSpriteVpdIndex, backbufferCarSpriteVpdIndex);
 		for(;;)
 		{
 			//log("frame:\n");
@@ -310,11 +310,11 @@ void main(void)
 				uploadCarTilesToVdpPart++;
 			}
 
-			log("carDirection %d, nextCarDirection %d\n", carDirection, nextCarDirection);
+			//log("carDirection %d, nextCarDirection %d\n", carDirection, nextCarDirection);
 
 			if (uploadCarTilesToVdpPart == UPLOAD_CAR_TILES_TO_VDP_FINISHED)
 			{
-				log("finished copying. switch active and backbuffer\n");
+				//log("finished copying. switch active and backbuffer\n");
 
 				carDirection = nextCarDirection;
 
@@ -332,7 +332,7 @@ void main(void)
 
 				uploadCarTilesToVdpPart = UPLOAD_CAR_TILES_TO_VDP_NOTHING;
 
-				log("backbufferCarSpriteVpdIndex %d, activeCarSpriteVpdIndex %d\n", backbufferCarSpriteVpdIndex, activeCarSpriteVpdIndex);
+				//log("backbufferCarSpriteVpdIndex %d, activeCarSpriteVpdIndex %d\n", backbufferCarSpriteVpdIndex, activeCarSpriteVpdIndex);
 			}
 
 			/*
@@ -373,7 +373,7 @@ void processSpritesActiveDisplay(void)
 
 void UpdateStreamedBatchedAnimationFrame(void)
 {
-	log("UpdateStreamedBatchedAnimationFrame\n");
+	//log("UpdateStreamedBatchedAnimationFrame\n");
 
 	//SMS_mapROMBank(gameObject->resourceInfo->bankNumber);
 	//SMS_setBackdropColor(COLOR_ORANGE);
@@ -409,15 +409,15 @@ void UpdateStreamedBatchedAnimationFrame(void)
 
 		UNSAFE_SMS_loadNTiles(tileOffset, vdpIndex, tileCount);
 
-		log("copying %d tiles to vdpIndex %d\n", tileCount, vdpIndex);
+		//log("copying %d tiles to vdpIndex %d\n", tileCount, vdpIndex);
 	}
 	else
 	{
-		log("not copying tiles\n");
+		//log("not copying tiles\n");
 	}
 	
 	//log("part: %d, vdpIndex: %d, activeCarSpriteVpdIndex: %d\n", uploadCarTilesToVdpPart, vdpIndex, activeCarSpriteVpdIndex);
-	log("part: %d, activeCarSpriteVpdIndex: %d, backbufferCarSpriteVpdIndex: %d\n", uploadCarTilesToVdpPart, activeCarSpriteVpdIndex, backbufferCarSpriteVpdIndex);
+	//log("part: %d, activeCarSpriteVpdIndex: %d, backbufferCarSpriteVpdIndex: %d\n", uploadCarTilesToVdpPart, activeCarSpriteVpdIndex, backbufferCarSpriteVpdIndex);
 
 }
 
@@ -445,6 +445,7 @@ void processUserInput(void)
 	playerSpeedX = 0;
 	playerSpeedY = 0;
 
+	/*
 	if ((ks & PORT_A_KEY_LEFT) && !oldKs)
 	{
 		nextCarDirection = (++nextCarDirection) & 15;
@@ -458,6 +459,23 @@ void processUserInput(void)
 		uploadCarTilesToVdpPart = UPLOAD_CAR_TILES_TO_VDP_PART_ONE;
 		log("start update\n");
 		log("backbufferCarSpriteVpdIndex %d, activeCarSpriteVpdIndex %d\n", backbufferCarSpriteVpdIndex, activeCarSpriteVpdIndex);
+	}
+	*/
+
+	u16 currentNextCarDirection = nextCarDirection;
+
+	if (ks & PORT_A_KEY_LEFT)
+	{
+		nextCarDirection = ((++carDirectionHigh) >> 3) & 15;
+	}
+	else if (ks & PORT_A_KEY_RIGHT)
+	{
+		nextCarDirection = ((--carDirectionHigh) >> 3) & 15;		
+	}
+
+	if (currentNextCarDirection != nextCarDirection)
+	{
+		uploadCarTilesToVdpPart = UPLOAD_CAR_TILES_TO_VDP_PART_ONE;
 	}
 
 	/*
