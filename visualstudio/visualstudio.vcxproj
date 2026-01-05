@@ -131,6 +131,8 @@
     <None Include="..\build\rebuild.bat" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\devkitSMS-master\SMSlib\src\SMSlib.h" />
+    <ClInclude Include="..\..\..\GSLib\c\GSLib.h" />
     <ClInclude Include="..\assets\banks\bank2.h" />
     <ClInclude Include="..\lib\PSGlib.h" />
     <ClInclude Include="..\lib\SMSlib.h" />
@@ -152,6 +154,45 @@
     <Library Include="..\lib\SMSlib.lib" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\devkitSMS-master\SMSlib\src\SMSlib.c" />
+    <ClCompile Include="..\..\..\devkitSMS-master\SMSlib\src\SMSlib_aPLib.c" />
+    <ClCompile Include="..\..\..\devkitSMS-master\SMSlib\src\SMSlib_autotext.c" />
+    <ClCompile Include="..\..\..\devkitSMS-master\SMSlib\src\SMSlib_common.c" />
+    <ClCompile Include="..\..\..\devkitSMS-master\SMSlib\src\SMSlib_debug.c" />
+    <ClCompile Include="..\..\..\devkitSMS-master\SMSlib\src\SMSlib_deprecated.c" />
+    <ClCompile Include="..\..\..\devkitSMS-master\SMSlib\src\SMSlib_foursprites.c" />
+    <ClCompile Include="..\..\..\devkitSMS-master\SMSlib\src\SMSlib_getTile.c" />
+    <ClCompile Include="..\..\..\devkitSMS-master\SMSlib\src\SMSlib_load1bppTiles.c" />
+    <ClCompile Include="..\..\..\devkitSMS-master\SMSlib\src\SMSlib_loadTileMapArea.c" />
+    <ClCompile Include="..\..\..\devkitSMS-master\SMSlib\src\SMSlib_loadTileMapColumn.c" />
+    <ClCompile Include="..\..\..\devkitSMS-master\SMSlib\src\SMSlib_metasprite.c" />
+    <ClCompile Include="..\..\..\devkitSMS-master\SMSlib\src\SMSlib_paddle.c" />
+    <ClCompile Include="..\..\..\devkitSMS-master\SMSlib\src\SMSlib_paletteAdd.c" />
+    <ClCompile Include="..\..\..\devkitSMS-master\SMSlib\src\SMSlib_paletteAdv.c" />
+    <ClCompile Include="..\..\..\devkitSMS-master\SMSlib\src\SMSlib_paletteSub.c" />
+    <ClCompile Include="..\..\..\devkitSMS-master\SMSlib\src\SMSlib_paletteZero.c" />
+    <ClCompile Include="..\..\..\devkitSMS-master\SMSlib\src\SMSlib_PSGaiden.c" />
+    <ClCompile Include="..\..\..\devkitSMS-master\SMSlib\src\SMSlib_readVRAM.c" />
+    <ClCompile Include="..\..\..\devkitSMS-master\SMSlib\src\SMSlib_sprite.c" />
+    <ClCompile Include="..\..\..\devkitSMS-master\SMSlib\src\SMSlib_spriteAdv.c" />
+    <ClCompile Include="..\..\..\devkitSMS-master\SMSlib\src\SMSlib_spriteClip.c" />
+    <ClCompile Include="..\..\..\devkitSMS-master\SMSlib\src\SMSlib_STC0comp.c" />
+    <ClCompile Include="..\..\..\devkitSMS-master\SMSlib\src\SMSlib_STC4comp.c" />
+    <ClCompile Include="..\..\..\devkitSMS-master\SMSlib\src\SMSlib_STMcomp.c" />
+    <ClCompile Include="..\..\..\devkitSMS-master\SMSlib\src\SMSlib_string.c" />
+    <ClCompile Include="..\..\..\devkitSMS-master\SMSlib\src\SMSlib_textrenderer.c" />
+    <ClCompile Include="..\..\..\devkitSMS-master\SMSlib\src\SMSlib_threesprites.c" />
+    <ClCompile Include="..\..\..\devkitSMS-master\SMSlib\src\SMSlib_twosprites.c" />
+    <ClCompile Include="..\..\..\devkitSMS-master\SMSlib\src\SMSlib_UNSAFE.c" />
+    <ClCompile Include="..\..\..\devkitSMS-master\SMSlib\src\SMSlib_UNSAFE_aPLib.c" />
+    <ClCompile Include="..\..\..\devkitSMS-master\SMSlib\src\SMSlib_UNSAFE_memcpy.c" />
+    <ClCompile Include="..\..\..\devkitSMS-master\SMSlib\src\SMSlib_UNSAFE_SAT.c" />
+    <ClCompile Include="..\..\..\devkitSMS-master\SMSlib\src\SMSlib_VRAMmemcpy.c" />
+    <ClCompile Include="..\..\..\devkitSMS-master\SMSlib\src\SMSlib_VRAMmemcpy_brief.c" />
+    <ClCompile Include="..\..\..\devkitSMS-master\SMSlib\src\SMSlib_VRAMmemset.c" />
+    <ClCompile Include="..\..\..\devkitSMS-master\SMSlib\src\SMSlib_zx7.c" />
+    <ClCompile Include="..\..\..\devkitSMS-master\SMSlib\src\SMSlib_zx7_VRAM.c" />
+    <ClCompile Include="..\..\..\GSLib\c\GSLib.c" />
     <ClCompile Include="..\source\animation_utils.c" />
     <ClCompile Include="..\source\draw_utils.c" />
     <ClCompile Include="..\source\exported\animations\car001.c" />

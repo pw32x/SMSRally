@@ -65,12 +65,25 @@ s32 playerWorldMaxY;
 s16 playerScreenX;
 s16 playerScreenY;
 
+#define VDP_CAR_TILE_UPLOAD_BATCH_SIZE 16
+#define UPLOAD_CAR_TILES_TO_VDP_NOTHING  0
+#define UPLOAD_CAR_TILES_TO_VDP_PART_ONE 1
+#define UPLOAD_CAR_TILES_TO_VDP_PART_TWO 2
+#define UPLOAD_CAR_TILES_TO_VDP_FINISHED 3
+u8 uploadCarTilesToVdpPart = UPLOAD_CAR_TILES_TO_VDP_NOTHING;
+u8 tilesToUploadCount = 0;
+
 #define SPEED_FACTOR 4.0f
 #define TO_SPEED(value) ((s16)(value * (1 << FIXED_POINT_FACTOR)))
 
 #define MAKE_SPEED(value, x, y) \
 value[0] = TO_SPEED(x * SPEED_FACTOR);\
 value[1] = TO_SPEED(y * SPEED_FACTOR)
+
+#define START_CAR_DIRECTION 4
+u8 carDirection = START_CAR_DIRECTION;
+u8 nextCarDirection = START_CAR_DIRECTION;
+u8 carDirectionHigh = START_CAR_DIRECTION << 3;
 
 s16 iso_dir16_b[16][2];
 
@@ -116,6 +129,14 @@ unsigned char scrolltable[testmap003_scrolltable_bin_size];
 
 SMS_EMBED_SEGA_ROM_HEADER(9999,1);
 
+const BatchedAnimationFrame* batchedAnimationFrame;
+const BatchedAnimation* batchedAnimation;
+const u8* tileData;
+const BatchedAnimationSpriteStrip* carRunner;
+
+u16 backbufferCarSpriteVpdIndex = 0;
+u16 activeCarSpriteVpdIndex = 0;
+
 void main(void)
 {
 	MAKE_SPEED(iso_dir16_b[0], 0.0f, 1.0f);
@@ -152,7 +173,7 @@ void main(void)
 
 	//SMS_loadTiles(&testmap003_tiles_bin, 0, testmap003_tiles_bin_size);
 
-	//SMS_loadTiles(car001.tileData, 256 + 4, car001.totalTileCount * 32);
+	//SMS_loadTiles(car001.tileData, 256, car001.totalTileCount * 32);
 
 	for(;;)
 	{
@@ -211,16 +232,23 @@ void main(void)
 
 		//PSGPlay(&village_psg);
 
-
-
+		uploadCarTilesToVdpPart = UPLOAD_CAR_TILES_TO_VDP_PART_ONE;
+		backbufferCarSpriteVpdIndex = 256;
+		activeCarSpriteVpdIndex = 0;
+		log("Start game: part: %d, activeCarSpriteVpdIndex: %d, backbufferCarSpriteVpdIndex: %d\n", uploadCarTilesToVdpPart, activeCarSpriteVpdIndex, backbufferCarSpriteVpdIndex);
 		for(;;)
 		{
 			//log("frame:\n");
 
 			SMS_initSprites();
-			ks = SMS_getKeysStatus();
 
-			processUserInput();
+			// only change direction when the copy will start
+			if (uploadCarTilesToVdpPart == UPLOAD_CAR_TILES_TO_VDP_FINISHED ||
+				uploadCarTilesToVdpPart == UPLOAD_CAR_TILES_TO_VDP_NOTHING)
+			{
+				processUserInput();
+			}
+
 			updatePlayerPhysics();
 
 			W2S_XY(playerWorldX, playerWorldY, playerScreenX, playerScreenY);
@@ -241,23 +269,90 @@ void main(void)
 			//log("cameraY: %d\n", cameraY);
 			//log("playerScreen pos: %d %d\n", playerScreenX, playerScreenY);
 
+			//log("cameraDelta: %d %d\n", cameraDeltaX, cameraDeltaY);
+
 			GSL_scroll(cameraDeltaX, cameraDeltaY); // << GSL_scroll with offsets to scroll map.
+			//log("backbufferCarSpriteVpdIndex %d, activeCarSpriteVpdIndex %d\n", backbufferCarSpriteVpdIndex, activeCarSpriteVpdIndex);
+
+			//log("backbufferCarSpriteVpdIndex %d, activeCarSpriteVpdIndex %d\n", backbufferCarSpriteVpdIndex, activeCarSpriteVpdIndex);
 
 			processSpritesActiveDisplay();
 
+			// get the car sprite data
+			batchedAnimationFrame = car001.frames[nextCarDirection];//gameObject->currentBatchedAnimationFrame;
+			batchedAnimation = &car001;//gameObject->batchedAnimation;
+			tileData = batchedAnimation->tileData;
+			carRunner = batchedAnimationFrame->spriteStrips;
+
+			// move to the other half of the frame data to copy
+			if (uploadCarTilesToVdpPart == UPLOAD_CAR_TILES_TO_VDP_PART_TWO)
+			{
+				carRunner += 2;
+			}
+
 			SMS_waitForVBlank();
 			GSL_VBlank();  // <<< Call GSL_VBlank to process any pending scroll / metatile updates.
-			processSpritesVBlank();
+
+			UNSAFE_SMS_copySpritestoSAT();
+
+			if (uploadCarTilesToVdpPart > UPLOAD_CAR_TILES_TO_VDP_NOTHING &&
+				uploadCarTilesToVdpPart < UPLOAD_CAR_TILES_TO_VDP_FINISHED)
+			{
+				processSpritesVBlank();
+			}
+
 			PSGFrame();
+
+			// switch to the other part to copy over
+			if (uploadCarTilesToVdpPart > UPLOAD_CAR_TILES_TO_VDP_NOTHING &&
+				uploadCarTilesToVdpPart < UPLOAD_CAR_TILES_TO_VDP_FINISHED)
+			{
+				uploadCarTilesToVdpPart++;
+			}
+
+			log("carDirection %d, nextCarDirection %d\n", carDirection, nextCarDirection);
+
+			if (uploadCarTilesToVdpPart == UPLOAD_CAR_TILES_TO_VDP_FINISHED)
+			{
+				log("finished copying. switch active and backbuffer\n");
+
+				carDirection = nextCarDirection;
+
+				if (backbufferCarSpriteVpdIndex == 256) 
+				{
+					backbufferCarSpriteVpdIndex = 288;
+					activeCarSpriteVpdIndex = 0;
+
+				}
+				else 
+				{
+					backbufferCarSpriteVpdIndex = 256;
+					activeCarSpriteVpdIndex = 32;
+				}
+
+				uploadCarTilesToVdpPart = UPLOAD_CAR_TILES_TO_VDP_NOTHING;
+
+				log("backbufferCarSpriteVpdIndex %d, activeCarSpriteVpdIndex %d\n", backbufferCarSpriteVpdIndex, activeCarSpriteVpdIndex);
+			}
+
+			/*
+			// if we're at 0 again, then switch where the tiles will be copied to
+			if (!uploadCarTilesToVdpPart)
+			{
+
+			}
+			*/
+
+			//while (1) {}
+
+			
 		}
 
 		SMS_displayOff();
 	}
 }
 
-#define START_CAR_DIRECTION 4
-u8 carDirection = START_CAR_DIRECTION;
-u8 carDirectionHigh = START_CAR_DIRECTION << 3;
+
 
 void processSpritesActiveDisplay(void)
 {
@@ -265,7 +360,7 @@ void processSpritesActiveDisplay(void)
 	//SMS_addTwoAdjoiningSprites(playerScreenX - 8, playerScreenY - 8, 0);
 	//SMS_addTwoAdjoiningSprites(playerScreenX - 8, playerScreenY, 2);
 
-	DRAWUTILS_SETUP_BATCH((playerScreenX - cameraX) - 24, (playerScreenY - cameraY) - 24, car001.frames[carDirection]->spriteStrips, 4);
+	DRAWUTILS_SETUP_BATCH((playerScreenX - cameraX) - 24, (playerScreenY - cameraY) - 24, car001.frames[carDirection]->spriteStrips, activeCarSpriteVpdIndex);
 	DrawUtils_DrawBatchedStreamed();
 
 	/*
@@ -278,33 +373,52 @@ void processSpritesActiveDisplay(void)
 
 void UpdateStreamedBatchedAnimationFrame(void)
 {
+	log("UpdateStreamedBatchedAnimationFrame\n");
+
 	//SMS_mapROMBank(gameObject->resourceInfo->bankNumber);
-
-
-
 	//SMS_setBackdropColor(COLOR_ORANGE);
-	const BatchedAnimationFrame* batchedAnimationFrame = car001.frames[carDirection];//gameObject->currentBatchedAnimationFrame;
-	const BatchedAnimationSpriteStrip* runner = batchedAnimationFrame->spriteStrips;
 
-	const BatchedAnimation* batchedAnimation = &car001;//gameObject->batchedAnimation;
-	const u8* tileData = batchedAnimation->tileData;
-	u16 vdpIndex = 256 + 4;//*batchedAnimation->vdpLocation;
+	//log("part: %d, count: %d\n", uploadCarTilesToVdpPart, carRunner->count);
 
-	u16 tileCount = 0;
-
-	const u8* tileOffset = tileData + (runner->tileIndex << 5);
-
-	do 
+	if (carRunner->count)
 	{
-		tileCount += runner->count << 1;
-		runner++;
-	} while (runner->count);
 
-	UNSAFE_SMS_loadNTiles(tileOffset, vdpIndex, tileCount);
+		// this is where we're copying the tiles to the vdp
+		u16 vdpIndex = backbufferCarSpriteVpdIndex;//*batchedAnimation->vdpLocation;
 
-	//log("tileCount: %d\n", tileCount);
 
-	// UNSAFE_SMS_VRAMmemcpy64(vdpIndex << 5, (const void *)tileOffset);
+
+
+		u16 tileCount = 0;
+
+		const u8* tileOffset = tileData + (carRunner->tileIndex << 5);
+
+		vdpIndex += carRunner->frameIndex;
+
+		u8 otherCount = 0;
+
+		do 
+		{
+			otherCount++;
+			if (otherCount > 2)
+				break;
+			tileCount += carRunner->count << 1;
+			carRunner++;
+		} while (carRunner->count);
+
+
+		UNSAFE_SMS_loadNTiles(tileOffset, vdpIndex, tileCount);
+
+		log("copying %d tiles to vdpIndex %d\n", tileCount, vdpIndex);
+	}
+	else
+	{
+		log("not copying tiles\n");
+	}
+	
+	//log("part: %d, vdpIndex: %d, activeCarSpriteVpdIndex: %d\n", uploadCarTilesToVdpPart, vdpIndex, activeCarSpriteVpdIndex);
+	log("part: %d, activeCarSpriteVpdIndex: %d, backbufferCarSpriteVpdIndex: %d\n", uploadCarTilesToVdpPart, activeCarSpriteVpdIndex, backbufferCarSpriteVpdIndex);
+
 }
 
 
@@ -312,7 +426,7 @@ void UpdateStreamedBatchedAnimationFrame(void)
 void processSpritesVBlank(void)
 {
 	// Update player sprites in VRAM. Tiles are updated each frame.
-	UNSAFE_SMS_copySpritestoSAT();
+	
 
 	//UNSAFE_SMS_load4Tiles(sprite_tiles_bin + *(spriteTileOffsets + animationCount), 256);
 
@@ -321,7 +435,7 @@ void processSpritesVBlank(void)
 
 }
 
-
+u16 oldKs = 0;
 
 // Test for user input and call appropriate method if so.
 void processUserInput(void)
@@ -331,7 +445,22 @@ void processUserInput(void)
 	playerSpeedX = 0;
 	playerSpeedY = 0;
 
+	if ((ks & PORT_A_KEY_LEFT) && !oldKs)
+	{
+		nextCarDirection = (++nextCarDirection) & 15;
+		uploadCarTilesToVdpPart = UPLOAD_CAR_TILES_TO_VDP_PART_ONE;
+		log("start update\n");
+		log("backbufferCarSpriteVpdIndex %d, activeCarSpriteVpdIndex %d\n", backbufferCarSpriteVpdIndex, activeCarSpriteVpdIndex);
+	}
+	else if ((ks & PORT_A_KEY_RIGHT) && !oldKs)
+	{
+		nextCarDirection = (--nextCarDirection) & 15;
+		uploadCarTilesToVdpPart = UPLOAD_CAR_TILES_TO_VDP_PART_ONE;
+		log("start update\n");
+		log("backbufferCarSpriteVpdIndex %d, activeCarSpriteVpdIndex %d\n", backbufferCarSpriteVpdIndex, activeCarSpriteVpdIndex);
+	}
 
+	/*
 	if (ks & PORT_A_KEY_UP)
 	{
 
@@ -347,6 +476,8 @@ void processUserInput(void)
 	{
 		carDirection = ((--carDirectionHigh) >> 3) & 15;		
 	}
+	*/
+	
 
 	if (ks & PORT_A_KEY_2)
 	{
@@ -354,4 +485,5 @@ void processUserInput(void)
 		playerSpeedY = iso_dir16_b[carDirection][1];
 	}
 
+	oldKs = ks;
 }
